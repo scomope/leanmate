@@ -1,7 +1,7 @@
 const CACHE_NAME = 'leanmate-mvp-v1';
 const APP_FILES = [
   './',
-  './fitai-mvp-prototype.html',
+  './index.html',
   './manifest.webmanifest',
   './fitai-icon.svg'
 ];

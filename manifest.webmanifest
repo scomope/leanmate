@@ -2,7 +2,7 @@
   "name": "LeanMate AI减脂教练",
   "short_name": "LeanMate",
   "description": "AI每天帮你生成减脂饮食、运动和打卡计划。",
-  "start_url": "./fitai-mvp-prototype.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f6f4ef",
