@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#202724">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LeanMate">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./fitai-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./fitai-icon.svg">
+  <title>LeanMate AI减脂教练</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #1d2321;
+      --muted: #69716d;
+      --line: #d9d6cc;
+      --panel: #fffdf8;
+      --green: #26745f;
+      --green-soft: #dceee7;
+      --red: #b94c43;
+      --red-soft: #f4dedb;
+      --blue: #315f91;
+      --blue-soft: #dfeaf5;
+      --gold: #9a6a1f;
+      --gold-soft: #f3e6ca;
+      --shadow: 0 12px 32px rgba(29, 35, 33, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 264px minmax(0, 1fr);
+    }
+
+    .side {
+      background: #202724;
+      color: #f9f5eb;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #85c7a8, #f0c36b);
+      display: grid;
+      place-items: center;
+      color: #17211d;
+      font-weight: 800;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .brand-sub {
+      color: #b7c0bb;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav button {
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: transparent;
+      color: #dce5df;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .nav button.active {
+      background: #34413b;
+      color: #fff;
+    }
+
+    .nav svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+
+    .coach-note {
+      margin-top: auto;
+      background: #2d3833;
+      border: 1px solid #45514b;
+      border-radius: 8px;
+      padding: 14px;
+      color: #eef7f0;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    main {
+      padding: 24px;
+      display: grid;
+      gap: 20px;
+      align-content: start;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .date {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .primary {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .secondary {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: #ece8dd;
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel.pad {
+      padding: 18px;
+    }
+
+    .metric {
+      min-height: 124px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    .metric-foot {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0 0 12px;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e0d4;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 72%;
+      background: linear-gradient(90deg, var(--green), #ddb151);
+    }
+
+    .meal-list, .workout-list, .ingredient-list, .chat-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 56px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .row:last-child {
+      padding-bottom: 0;
+    }
+
+    .row strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .row small {
+      color: var(--muted);
+      line-height: 1.45;
+      display: block;
+      margin-top: 3px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .pill.green { background: var(--green-soft); color: var(--green); }
+    .pill.red { background: var(--red-soft); color: var(--red); }
+    .pill.blue { background: var(--blue-soft); color: var(--blue); }
+    .pill.gold { background: var(--gold-soft); color: var(--gold); }
+
+    .form {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 40px;
+      padding: 0 10px;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 92px;
+      padding: 10px;
+      resize: vertical;
+    }
+
+    .span-2 { grid-column: span 2; }
+    .span-4 { grid-column: span 4; }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr);
+      gap: 16px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: grid;
+      gap: 16px;
+    }
+
+    .chat-bubble {
+      padding: 12px;
+      border-radius: 8px;
+      background: #f0ece0;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .chat-bubble.user {
+      background: var(--blue-soft);
+      justify-self: end;
+      max-width: 80%;
+    }
+
+    .chat-bubble.ai {
+      justify-self: start;
+      max-width: 86%;
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tabbar {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+        padding-bottom: 72px;
+      }
+
+      .side {
+        display: none;
+      }
+
+      main {
+        padding: 18px;
+      }
+
+      .grid.cols-4, .grid.cols-3, .grid.cols-2, .split, .form {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2, .span-4 {
+        grid-column: auto;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .tabbar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        background: #202724;
+        border-top: 1px solid #45514b;
+        z-index: 10;
+      }
+
+      .tabbar button {
+        min-height: 64px;
+        background: transparent;
+        color: #cbd4ce;
+        font-size: 12px;
+        display: grid;
+        place-items: center;
+        gap: 3px;
+      }
+
+      .tabbar button.active {
+        color: white;
+        background: #34413b;
+      }
+
+      .tabbar svg {
+        width: 19px;
+        height: 19px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div>
+          <div class="brand-title">LeanMate</div>
+          <div class="brand-sub">AI减脂教练</div>
+        </div>
+      </div>
+      <nav class="nav" data-nav></nav>
+      <div class="coach-note" id="sideCoach">今天先完成计划里最小的一步，稳定比完美更重要。</div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">今日</h1>
+          <div class="date" id="todayDate"></div>
+        </div>
+        <button class="primary" id="generatePlan">生成明日计划</button>
+      </div>
+
+      <section class="screen active" id="screen-today">
+        <div class="grid cols-4">
+          <div class="panel pad metric">
+            <div>
+              <div class="metric-label">今日热量</div>
+              <div class="metric-value" id="calorieTarget">1800</div>
+            </div>
+            <div class="metric-foot">剩余 <span id="calorieLeft">620</span> kcal</div>
+          </div>
+          <div class="panel pad metric">
+            <div>
+              <div class="metric-label">蛋白质</div>
+              <div class="metric-value" id="proteinTarget">140g</div>
+            </div>
+            <div class="metric-foot">优先达标</div>
+          </div>
+          <div class="panel pad metric">
+            <div>
+              <div class="metric-label">训练</div>
+              <div class="metric-value" id="trainMinutes">45</div>
+            </div>
+            <div class="metric-foot">分钟力量训练</div>
+          </div>
+          <div class="panel pad metric">
+            <div>
+              <div class="metric-label">完成率</div>
+              <div class="metric-value" id="completion">72%</div>
+            </div>
+            <div class="progress"><span id="completionBar"></span></div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="panel pad">
+            <h2 class="section-title">今日饮食</h2>
+            <div class="meal-list" id="todayMeals"></div>
+          </div>
+          <div class="panel pad">
+            <h2 class="section-title">AI提醒</h2>
+            <p id="coachMessage" style="line-height:1.7;margin:0;color:#39423e;">今天的关键是完成训练和蛋白质目标。晚餐保持清淡，明天体重波动不用紧张。</p>
+            <div class="quick-actions">
+              <button class="secondary" data-ask="今天不想练怎么办？">不想练</button>
+              <button class="secondary" data-ask="今晚聚餐怎么吃？">今晚聚餐</button>
+              <button class="secondary" data-ask="帮我调整晚餐">调整晚餐</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel pad">
+          <h2 class="section-title">今日运动</h2>
+          <div class="workout-list" id="workoutList"></div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-food">
+        <div class="split">
+          <div class="panel pad">
+            <h2 class="section-title">食材库存</h2>
+            <div class="form">
+              <label class="span-2">食材名称<input id="ingredientName" value="鸡胸肉"></label>
+              <label>数量<input id="ingredientQty" type="number" value="500"></label>
+              <label>单位<select id="ingredientUnit"><option>g</option><option>个</option><option>ml</option><option>份</option></select></label>
+              <button class="primary span-4" id="addIngredient">添加食材</button>
+            </div>
+            <div class="ingredient-list" id="ingredientList" style="margin-top:16px;"></div>
+          </div>
+          <div class="panel pad">
+            <h2 class="section-title">购物清单</h2>
+            <div id="shoppingList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-workout">
+        <div class="panel pad">
+          <h2 class="section-title">运动打卡</h2>
+          <div class="form">
+            <label>训练类型<select id="workoutType"><option>力量训练</option><option>快走</option><option>跑步</option><option>恢复拉伸</option></select></label>
+            <label>训练时长<input id="workoutDoneMinutes" type="number" value="45"></label>
+            <label>心情<select id="mood"><option>开心</option><option>一般</option><option>很累</option><option>不想练</option></select></label>
+            <label>疲劳程度<select id="fatigue"><option>低</option><option>中</option><option>高</option></select></label>
+            <label class="span-4">训练笔记<textarea id="workoutNote">今天状态还可以，动作完成得比较稳。</textarea></label>
+            <button class="primary span-4" id="submitCheckin">完成今日打卡</button>
+          </div>
+        </div>
+        <div class="panel pad">
+          <h2 class="section-title">今日复盘</h2>
+          <p id="reviewText" style="line-height:1.7;margin:0;color:#39423e;">完成训练后，这里会生成今日复盘和明日调整建议。</p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-body">
+        <div class="panel pad">
+          <h2 class="section-title">身体数据</h2>
+          <div class="form">
+            <label>性别<select id="gender"><option value="male">男</option><option value="female">女</option></select></label>
+            <label>年龄<input id="age" type="number" value="28"></label>
+            <label>身高 cm<input id="height" type="number" value="175"></label>
+            <label>体重 kg<input id="weight" type="number" value="82"></label>
+            <label>体脂率 %<input id="bodyFat" type="number" value="24"></label>
+            <label>目标体重 kg<input id="targetWeight" type="number" value="75"></label>
+            <label>活动水平<select id="activity"><option value="1.2">久坐</option><option value="1.375">轻度活动</option><option value="1.55" selected>中度活动</option><option value="1.725">高活动</option></select></label>
+            <label>每周训练天数<input id="weeklyDays" type="number" value="4"></label>
+            <button class="primary span-4" id="calculateBody">计算减脂目标</button>
+          </div>
+        </div>
+        <div class="grid cols-4">
+          <div class="panel pad metric"><div><div class="metric-label">BMI</div><div class="metric-value" id="bmi">26.8</div></div><div class="metric-foot">用于趋势参考</div></div>
+          <div class="panel pad metric"><div><div class="metric-label">BMR</div><div class="metric-value" id="bmr">1780</div></div><div class="metric-foot">基础代谢 kcal</div></div>
+          <div class="panel pad metric"><div><div class="metric-label">TDEE</div><div class="metric-value" id="tdee">2759</div></div><div class="metric-foot">每日总消耗 kcal</div></div>
+          <div class="panel pad metric"><div><div class="metric-label">建议热量</div><div class="metric-value" id="cutCalories">2259</div></div><div class="metric-foot">每日减脂目标</div></div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-ai">
+        <div class="panel pad">
+          <h2 class="section-title">AI教练</h2>
+          <div class="chat-list" id="chatList">
+            <div class="chat-bubble ai">今天想调整什么？可以直接问我吃什么、练什么，或者把临时情况告诉我。</div>
+          </div>
+          <div class="quick-actions">
+            <button class="secondary" data-ask="火锅怎么吃不容易胖？">火锅怎么吃</button>
+            <button class="secondary" data-ask="晚上十一点饿了怎么办？">夜里饿了</button>
+            <button class="secondary" data-ask="今天只有鸡蛋和燕麦，怎么安排？">库存很少</button>
+          </div>
+          <div class="form" style="margin-top:14px;">
+            <label class="span-4">消息<input id="chatInput" placeholder="输入你的问题"></label>
+            <button class="primary span-4" id="sendChat">发送</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tabbar" data-nav-mobile></nav>
+
+  <script>
+    const icons = {
+      today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v7a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V3M8 3v18M17 3v18M17 3c2.5 1.5 3 4 3 7"/></svg>',
+      workout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>',
+      body: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 2-2 3-4 3S8 8 8 6a4 4 0 0 1 4-4Z"/><path d="M6 22v-5a6 6 0 0 1 12 0v5"/></svg>',
+      ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z"/><path d="M19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2Z"/></svg>'
+    };
+
+    const tabs = [
+      { id: 'today', label: '今日', title: '今日' },
+      { id: 'food', label: '饮食', title: '饮食' },
+      { id: 'workout', label: '运动', title: '运动' },
+      { id: 'body', label: '身体', title: '身体' },
+      { id: 'ai', label: 'AI教练', title: 'AI教练' }
+    ];
+
+    const state = {
+      calories: 2259,
+      protein: 148,
+      ingredients: [
+        { name: '鸡胸肉', qty: 500, unit: 'g' },
+        { name: '西兰花', qty: 300, unit: 'g' },
+        { name: '燕麦', qty: 400, unit: 'g' },
+        { name: '鸡蛋', qty: 8, unit: '个' }
+      ],
+      meals: [],
+      workout: []
+    };
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function renderNav() {
+      const html = tabs.map(tab => `<button class="${tab.id === 'today' ? 'active' : ''}" data-tab="${tab.id}" title="${tab.label}">${icons[tab.id]}<span>${tab.label}</span></button>`).join('');
+      document.querySelector('[data-nav]').innerHTML = html;
+      document.querySelector('[data-nav-mobile]').innerHTML = html;
+      document.querySelectorAll('[data-tab]').forEach(btn => {
+        btn.addEventListener('click', () => showTab(btn.dataset.tab));
+      });
+    }
+
+    function showTab(id) {
+      tabs.forEach(tab => {
+        document.querySelectorAll(`[data-tab="${tab.id}"]`).forEach(btn => btn.classList.toggle('active', tab.id === id));
+        $(`screen-${tab.id}`).classList.toggle('active', tab.id === id);
+      });
+      $('pageTitle').textContent = tabs.find(tab => tab.id === id).title;
+    }
+
+    function formatDate() {
+      const d = new Date();
+      $('todayDate').textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+    }
+
+    function calculateBody() {
+      const gender = $('gender').value;
+      const age = Number($('age').value);
+      const height = Number($('height').value);
+      const weight = Number($('weight').value);
+      const activity = Number($('activity').value);
+      const bmi = weight / ((height / 100) ** 2);
+      const bmr = gender === 'male'
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+      const tdee = bmr * activity;
+      const cut = Math.max(1300, tdee - 500);
+      const protein = Math.round(weight * 1.8);
+      state.calories = Math.round(cut);
+      state.protein = protein;
+      $('bmi').textContent = bmi.toFixed(1);
+      $('bmr').textContent = Math.round(bmr);
+      $('tdee').textContent = Math.round(tdee);
+      $('cutCalories').textContent = Math.round(cut);
+      $('calorieTarget').textContent = Math.round(cut);
+      $('calorieLeft').textContent = Math.round(cut * .34);
+      $('proteinTarget').textContent = protein + 'g';
+      generatePlan();
+    }
+
+    function generatePlan() {
+      const names = state.ingredients.map(item => item.name);
+      const has = key => names.some(name => name.includes(key));
+      const breakfast = has('燕麦')
+        ? ['燕麦牛奶鸡蛋餐', '燕麦 50g、鸡蛋 2个、牛奶 250ml', 520, 32]
+        : ['高蛋白早餐', '鸡蛋 2个、全麦面包 2片、无糖酸奶 1杯', 480, 30];
+      const lunch = has('鸡胸')
+        ? ['鸡胸肉西兰花米饭', '鸡胸肉 180g、西兰花 250g、米饭 150g', 650, 55]
+        : ['牛肉蔬菜碗', '瘦牛肉 150g、蔬菜 300g、米饭 120g', 680, 48];
+      const dinner = has('鸡蛋')
+        ? ['番茄鸡蛋豆腐汤', '鸡蛋 2个、豆腐 200g、番茄 2个、玉米半根', 540, 42]
+        : ['虾仁蔬菜晚餐', '虾仁 180g、蔬菜 300g、红薯 150g', 520, 45];
+      state.meals = [
+        { type: '早餐', title: breakfast[0], detail: breakfast[1], cal: breakfast[2], protein: breakfast[3] },
+        { type: '午餐', title: lunch[0], detail: lunch[1], cal: lunch[2], protein: lunch[3] },
+        { type: '晚餐', title: dinner[0], detail: dinner[1], cal: dinner[2], protein: dinner[3] }
+      ];
+      state.workout = [
+        { name: '热身快走', detail: '8分钟，逐渐提高心率', tag: '热身' },
+        { name: '深蹲', detail: '4组 × 12次，组间休息75秒', tag: '下肢' },
+        { name: '俯卧撑', detail: '3组 × 10到15次，保持动作稳定', tag: '上肢' },
+        { name: '平板支撑', detail: '3组 × 40秒，核心收紧', tag: '核心' }
+      ];
+      $('coachMessage').textContent = `明天目标 ${state.calories} kcal，蛋白质 ${state.protein}g。优先用现有食材，训练保持45分钟，完成比完美更重要。`;
+      $('sideCoach').textContent = '计划已更新。明天先把早餐和训练完成，节奏就稳了。';
+      renderMeals();
+      renderWorkout();
+      renderShopping();
+      showTab('today');
+    }
+
+    function renderMeals() {
+      $('todayMeals').innerHTML = state.meals.map((meal, i) => `
+        <div class="row">
+          <div>
+            <strong>${meal.type}：${meal.title}</strong>
+            <small>${meal.detail}</small>
+          </div>
+          <span class="pill ${['green','blue','gold'][i]}">${meal.cal} kcal / ${meal.protein}g</span>
+        </div>
+      `).join('');
+    }
+
+    function renderWorkout() {
+      $('workoutList').innerHTML = state.workout.map((item, i) => `
+        <div class="row">
+          <div>
+            <strong>${item.name}</strong>
+            <small>${item.detail}</small>
+          </div>
+          <span class="pill ${['green','blue','gold','red'][i]}">${item.tag}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderIngredients() {
+      $('ingredientList').innerHTML = state.ingredients.map((item, index) => `
+        <div class="row">
+          <div>
+            <strong>${item.name}</strong>
+            <small>${item.qty}${item.unit} 可用于生成饮食计划</small>
+          </div>
+          <button class="secondary" data-remove="${index}">删除</button>
+        </div>
+      `).join('');
+      document.querySelectorAll('[data-remove]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.ingredients.splice(Number(btn.dataset.remove), 1);
+          renderIngredients();
+          renderShopping();
+        });
+      });
+    }
+
+    function renderShopping() {
+      const names = state.ingredients.map(item => item.name).join(',');
+      const missing = [];
+      if (!names.includes('牛奶')) missing.push(['牛奶', '补充早餐蛋白质和钙']);
+      if (!names.includes('米饭') && !names.includes('红薯')) missing.push(['红薯', '作为低负担主食']);
+      if (!names.includes('番茄')) missing.push(['番茄', '用于晚餐汤菜']);
+      if (!names.includes('豆腐')) missing.push(['豆腐', '提高晚餐蛋白质']);
+      $('shoppingList').innerHTML = missing.length
+        ? missing.map(item => `<div class="row"><div><strong>${item[0]}</strong><small>${item[1]}</small></div><span class="pill gold">建议购买</span></div>`).join('')
+        : '<p style="margin:0;color:#39423e;line-height:1.7;">库存足够生成明日计划。</p>';
+    }
+
+    function addIngredient() {
+      const name = $('ingredientName').value.trim();
+      if (!name) return;
+      state.ingredients.push({
+        name,
+        qty: Number($('ingredientQty').value || 1),
+        unit: $('ingredientUnit').value
+      });
+      $('ingredientName').value = '';
+      renderIngredients();
+      renderShopping();
+    }
+
+    function submitCheckin() {
+      const mood = $('mood').value;
+      const fatigue = $('fatigue').value;
+      const minutes = Number($('workoutDoneMinutes').value || 0);
+      const review = fatigue === '高'
+        ? `今天完成了${minutes}分钟训练，但疲劳偏高。明天建议改成快走或拉伸，把蛋白质吃够，早点休息。`
+        : `今天完成了${minutes}分钟训练，状态是${mood}。执行得很稳，明天继续保持当前热量目标，训练强度可以维持。`;
+      $('reviewText').textContent = review;
+      $('completion').textContent = '92%';
+      $('completionBar').style.width = '92%';
+      $('coachMessage').textContent = review;
+      showTab('workout');
+    }
+
+    function answerQuestion(question) {
+      const q = question.trim();
+      if (!q) return;
+      const chat = $('chatList');
+      chat.insertAdjacentHTML('beforeend', `<div class="chat-bubble user">${q}</div>`);
+      let answer = '先看今天剩余热量和蛋白质目标。优先选择高蛋白、低油、足量蔬菜的方案，把下一步做小一点就能继续推进。';
+      if (q.includes('火锅')) answer = '火锅可以吃。优先清汤锅，主选牛肉、虾、豆腐和蔬菜，少喝汤，少选油炸丸子和肥牛。主食控制在半份到一份，吃到七分饱就很好。';
+      if (q.includes('不想练') || q.includes('很累')) answer = '今天可以把目标降到20分钟快走或拉伸。不要把一次状态差理解成失败，完成低门槛版本也算守住连续性。';
+      if (q.includes('晚餐')) answer = '晚餐建议高蛋白加蔬菜，减少油脂和精制主食。可以选鸡胸肉或鸡蛋豆腐，配西兰花、番茄，主食控制在半份。';
+      if (q.includes('十一点') || q.includes('饿')) answer = '如果真的饿，选低负担高蛋白：无糖酸奶、鸡蛋、牛奶或豆腐。避免高油高糖零食，吃完就结束，不继续加餐。';
+      if (q.includes('鸡蛋') && q.includes('燕麦')) answer = '可以安排：早餐燕麦50g加牛奶，配2个鸡蛋；午餐鸡蛋蔬菜炒饭少油；晚餐番茄鸡蛋汤加一份蔬菜。蛋白质不够的话，购物清单补鸡胸肉或豆腐。';
+      chat.insertAdjacentHTML('beforeend', `<div class="chat-bubble ai">${answer}</div>`);
+      $('chatInput').value = '';
+      showTab('ai');
+    }
+
+    function bindEvents() {
+      $('calculateBody').addEventListener('click', calculateBody);
+      $('generatePlan').addEventListener('click', generatePlan);
+      $('addIngredient').addEventListener('click', addIngredient);
+      $('submitCheckin').addEventListener('click', submitCheckin);
+      $('sendChat').addEventListener('click', () => answerQuestion($('chatInput').value));
+      $('chatInput').addEventListener('keydown', event => {
+        if (event.key === 'Enter') answerQuestion($('chatInput').value);
+      });
+      document.querySelectorAll('[data-ask]').forEach(btn => {
+        btn.addEventListener('click', () => answerQuestion(btn.dataset.ask));
+      });
+    }
+
+    renderNav();
+    formatDate();
+    bindEvents();
+    calculateBody();
+    renderIngredients();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
