@@ -372,6 +372,64 @@
       margin-top: 12px;
     }
 
+    .date-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .date-controls input {
+      width: auto;
+      min-width: 152px;
+    }
+
+    .notice {
+      border-radius: 8px;
+      padding: 12px;
+      background: #eef4ec;
+      color: #2f5f4e;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .compact-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .day-chip {
+      min-height: 78px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: white;
+      padding: 8px;
+      display: grid;
+      align-content: space-between;
+      text-align: left;
+    }
+
+    .day-chip.active {
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px rgba(38, 116, 95, .16);
+    }
+
+    .day-chip strong {
+      font-size: 13px;
+    }
+
+    .day-chip small {
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
     .tabbar {
       display: none;
     }
@@ -394,6 +452,10 @@
         grid-template-columns: 1fr;
       }
 
+      .history-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .span-2, .span-4 {
         grid-column: auto;
       }
@@ -412,7 +474,7 @@
         right: 0;
         bottom: 0;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         background: #202724;
         border-top: 1px solid #45514b;
         z-index: 10;
@@ -459,6 +521,12 @@
         <div>
           <h1 id="pageTitle">今日</h1>
           <div class="date" id="todayDate"></div>
+          <div class="date-controls">
+            <button class="secondary" id="prevDate">前一天</button>
+            <input id="selectedDate" type="date">
+            <button class="secondary" id="nextDate">后一天</button>
+            <button class="secondary" id="jumpToday">今天</button>
+          </div>
         </div>
         <button class="primary" id="generatePlan">生成明日计划</button>
       </div>
@@ -499,6 +567,7 @@
           <div class="panel pad">
             <h2 class="section-title">今日饮食</h2>
             <div class="meal-list" id="todayMeals"></div>
+            <div class="notice" style="margin-top:12px;" id="todayFoodSummary"></div>
           </div>
           <div class="panel pad">
             <h2 class="section-title">AI提醒</h2>
@@ -514,11 +583,25 @@
         <div class="panel pad">
           <h2 class="section-title">今日运动</h2>
           <div class="workout-list" id="workoutList"></div>
+          <div class="notice" style="margin-top:12px;" id="todayWorkoutSummary"></div>
         </div>
       </section>
 
       <section class="screen" id="screen-food">
         <div class="split">
+          <div class="panel pad">
+            <h2 class="section-title">记录饮食</h2>
+            <div class="form">
+              <label>餐次<select id="mealType"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option><option>聚餐</option></select></label>
+              <label class="span-2">食物名称<input id="foodName" value="鸡胸肉米饭"></label>
+              <label>热量 kcal<input id="foodCalories" type="number" value="520"></label>
+              <label>蛋白质 g<input id="foodProtein" type="number" value="38"></label>
+              <label>碳水 g<input id="foodCarbs" type="number" value="55"></label>
+              <label>脂肪 g<input id="foodFat" type="number" value="12"></label>
+              <button class="primary span-4" id="addFood">添加到当天饮食</button>
+            </div>
+            <div class="ingredient-list" id="foodLogList" style="margin-top:16px;"></div>
+          </div>
           <div class="panel pad">
             <h2 class="section-title">食材库存</h2>
             <div class="form">
@@ -528,9 +611,7 @@
               <button class="primary span-4" id="addIngredient">添加食材</button>
             </div>
             <div class="ingredient-list" id="ingredientList" style="margin-top:16px;"></div>
-          </div>
-          <div class="panel pad">
-            <h2 class="section-title">购物清单</h2>
+            <h2 class="section-title" style="margin-top:18px;">购物清单</h2>
             <div id="shoppingList"></div>
           </div>
         </div>
@@ -540,8 +621,10 @@
         <div class="panel pad">
           <h2 class="section-title">运动打卡</h2>
           <div class="form">
-            <label>训练类型<select id="workoutType"><option>力量训练</option><option>快走</option><option>跑步</option><option>恢复拉伸</option></select></label>
+            <label>训练类型<select id="workoutType"></select></label>
+            <label>训练项目<input id="workoutName" value="全身力量训练"></label>
             <label>训练时长<input id="workoutDoneMinutes" type="number" value="45"></label>
+            <label>消耗 kcal<input id="workoutCalories" type="number" value="260"></label>
             <label>心情<select id="mood"><option>开心</option><option>一般</option><option>很累</option><option>不想练</option></select></label>
             <label>疲劳程度<select id="fatigue"><option>低</option><option>中</option><option>高</option></select></label>
             <label class="span-4">训练笔记<textarea id="workoutNote">今天状态还可以，动作完成得比较稳。</textarea></label>
@@ -549,8 +632,13 @@
           </div>
         </div>
         <div class="panel pad">
+          <h2 class="section-title">训练模板</h2>
+          <div class="workout-list" id="workoutTemplates"></div>
+        </div>
+        <div class="panel pad">
           <h2 class="section-title">今日复盘</h2>
           <p id="reviewText" style="line-height:1.7;margin:0;color:#39423e;">完成训练后，这里会生成今日复盘和明日调整建议。</p>
+          <div class="workout-list" id="workoutLogList" style="margin-top:16px;"></div>
         </div>
       </section>
 
@@ -564,7 +652,9 @@
             <label>体重 kg<input id="weight" type="number" value="82"></label>
             <label>体脂率 %<input id="bodyFat" type="number" value="24"></label>
             <label>目标体重 kg<input id="targetWeight" type="number" value="75"></label>
-            <label>活动水平<select id="activity"><option value="1.2">久坐</option><option value="1.375">轻度活动</option><option value="1.55" selected>中度活动</option><option value="1.725">高活动</option></select></label>
+            <label>活动水平<select id="activity"><option value="1.2">久坐，几乎不运动</option><option value="1.375">轻度活动，每周1-3练</option><option value="1.55" selected>中度活动，每周3-5练</option><option value="1.725">高活动，每周6-7练</option><option value="1.9">极高活动，体力工作/高频训练</option></select></label>
+            <label>计算公式<select id="bmrFormula"><option value="auto">自动：有体脂用Katch</option><option value="mifflin">Mifflin-St Jeor</option><option value="katch">Katch-McArdle</option></select></label>
+            <label>减脂速度<select id="deficit"><option value="300">温和 -300 kcal</option><option value="500" selected>标准 -500 kcal</option><option value="700">较快 -700 kcal</option></select></label>
             <label>每周训练天数<input id="weeklyDays" type="number" value="4"></label>
             <button class="primary span-4" id="calculateBody">计算减脂目标</button>
           </div>
@@ -574,6 +664,21 @@
           <div class="panel pad metric"><div><div class="metric-label">BMR</div><div class="metric-value" id="bmr">1780</div></div><div class="metric-foot">基础代谢 kcal</div></div>
           <div class="panel pad metric"><div><div class="metric-label">TDEE</div><div class="metric-value" id="tdee">2759</div></div><div class="metric-foot">每日总消耗 kcal</div></div>
           <div class="panel pad metric"><div><div class="metric-label">建议热量</div><div class="metric-value" id="cutCalories">2259</div></div><div class="metric-foot">每日减脂目标</div></div>
+        </div>
+        <div class="panel pad">
+          <h2 class="section-title">计算说明</h2>
+          <p id="bodyCalcNote" style="line-height:1.7;margin:0;color:#39423e;"></p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-history">
+        <div class="panel pad">
+          <h2 class="section-title">最近7天记录</h2>
+          <div class="history-grid" id="historyGrid"></div>
+        </div>
+        <div class="panel pad">
+          <h2 class="section-title">当天明细</h2>
+          <div id="historyDetail" class="compact-list"></div>
         </div>
       </section>
 
@@ -605,41 +710,110 @@
       food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v7a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V3M8 3v18M17 3v18M17 3c2.5 1.5 3 4 3 7"/></svg>',
       workout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>',
       body: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 2-2 3-4 3S8 8 8 6a4 4 0 0 1 4-4Z"/><path d="M6 22v-5a6 6 0 0 1 12 0v5"/></svg>',
+      history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/><path d="M12 7v5l3 2"/></svg>',
       ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z"/><path d="M19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2Z"/></svg>'
     };
 
     const tabs = [
       { id: 'today', label: '今日', title: '今日' },
-      { id: 'food', label: '饮食', title: '饮食' },
-      { id: 'workout', label: '运动', title: '运动' },
-      { id: 'body', label: '身体', title: '身体' },
+      { id: 'food', label: '饮食', title: '饮食记录' },
+      { id: 'workout', label: '运动', title: '运动记录' },
+      { id: 'body', label: '身体', title: '身体数据' },
+      { id: 'history', label: '记录', title: '历史记录' },
       { id: 'ai', label: 'AI教练', title: 'AI教练' }
     ];
 
-    const state = {
-      calories: 2259,
-      protein: 148,
+    const workoutTypes = [
+      { type: '力量训练', name: '全身力量训练', calPerMin: 6, plan: ['深蹲 4×10', '俯卧撑 4×尽力', '哑铃划船 4×12', '平板支撑 3×45秒'] },
+      { type: '胸肩三头', name: '上肢推训练', calPerMin: 6, plan: ['俯卧撑 4×12', '哑铃卧推 4×10', '肩推 3×10', '臂屈伸 3×12'] },
+      { type: '背部二头', name: '上肢拉训练', calPerMin: 6, plan: ['划船 4×12', '下拉 4×10', '面拉 3×15', '弯举 3×12'] },
+      { type: '腿臀训练', name: '腿臀力量训练', calPerMin: 7, plan: ['深蹲 4×10', '罗马尼亚硬拉 4×10', '箭步蹲 3×12', '臀桥 4×12'] },
+      { type: '核心训练', name: '核心稳定训练', calPerMin: 5, plan: ['平板支撑 4×40秒', '死虫 3×12', '卷腹 3×15', '俄罗斯转体 3×20'] },
+      { type: '快走', name: '低强度快走', calPerMin: 4, plan: ['快走 40分钟', '最后5分钟放慢恢复'] },
+      { type: '跑步', name: '有氧跑步', calPerMin: 9, plan: ['热身走 5分钟', '慢跑 25分钟', '放松走 5分钟'] },
+      { type: '骑行', name: '中等强度骑行', calPerMin: 8, plan: ['轻松骑 8分钟', '稳定骑 30分钟', '放松骑 5分钟'] },
+      { type: '游泳', name: '游泳有氧', calPerMin: 8, plan: ['自由泳/蛙泳 30分钟', '中间按需休息'] },
+      { type: '跳绳', name: '跳绳间歇', calPerMin: 10, plan: ['跳绳 1分钟', '休息 30秒', '循环 12-16组'] },
+      { type: 'HIIT', name: '高强度间歇', calPerMin: 11, plan: ['开合跳 30秒', '波比 30秒', '登山跑 30秒', '休息 60秒，循环5组'] },
+      { type: '瑜伽拉伸', name: '恢复拉伸', calPerMin: 3, plan: ['髋部拉伸', '胸椎活动', '腿后侧拉伸', '呼吸放松'] }
+    ];
+
+    const defaultState = {
+      selectedDate: dateKey(new Date()),
+      calories: 1800,
+      protein: 130,
+      carbs: 180,
+      fat: 50,
+      bmr: 0,
+      tdee: 0,
       ingredients: [
         { name: '鸡胸肉', qty: 500, unit: 'g' },
         { name: '西兰花', qty: 300, unit: 'g' },
         { name: '燕麦', qty: 400, unit: 'g' },
         { name: '鸡蛋', qty: 8, unit: '个' }
       ],
-      meals: [],
-      workout: []
+      plans: {},
+      records: {}
     };
+
+    let state = loadState();
 
     function $(id) {
       return document.getElementById(id);
+    }
+
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[char]));
+    }
+
+    function dateKey(date) {
+      const d = new Date(date);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().slice(0, 10);
+    }
+
+    function addDays(key, days) {
+      const d = new Date(`${key}T00:00:00`);
+      d.setDate(d.getDate() + days);
+      return dateKey(d);
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('leanmate-v2') || 'null');
+        return saved ? { ...defaultState, ...saved } : structuredClone(defaultState);
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('leanmate-v2', JSON.stringify(state));
+    }
+
+    function currentRecord() {
+      if (!state.records[state.selectedDate]) {
+        state.records[state.selectedDate] = { foods: [], workouts: [], mood: '', fatigue: '', note: '', review: '' };
+      }
+      return state.records[state.selectedDate];
+    }
+
+    function currentPlan() {
+      if (!state.plans[state.selectedDate]) generatePlan(false);
+      return state.plans[state.selectedDate];
+    }
+
+    function sum(items, key) {
+      return Math.round(items.reduce((total, item) => total + Number(item[key] || 0), 0));
     }
 
     function renderNav() {
       const html = tabs.map(tab => `<button class="${tab.id === 'today' ? 'active' : ''}" data-tab="${tab.id}" title="${tab.label}">${icons[tab.id]}<span>${tab.label}</span></button>`).join('');
       document.querySelector('[data-nav]').innerHTML = html;
       document.querySelector('[data-nav-mobile]').innerHTML = html;
-      document.querySelectorAll('[data-tab]').forEach(btn => {
-        btn.addEventListener('click', () => showTab(btn.dataset.tab));
-      });
+      document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => showTab(btn.dataset.tab)));
     }
 
     function showTab(id) {
@@ -648,99 +822,159 @@
         $(`screen-${tab.id}`).classList.toggle('active', tab.id === id);
       });
       $('pageTitle').textContent = tabs.find(tab => tab.id === id).title;
+      renderAll();
+    }
+
+    function setSelectedDate(key) {
+      state.selectedDate = key;
+      saveState();
+      renderAll();
     }
 
     function formatDate() {
-      const d = new Date();
-      $('todayDate').textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+      const d = new Date(`${state.selectedDate}T00:00:00`);
+      $('selectedDate').value = state.selectedDate;
+      $('todayDate').textContent = d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
     }
 
     function calculateBody() {
       const gender = $('gender').value;
-      const age = Number($('age').value);
-      const height = Number($('height').value);
-      const weight = Number($('weight').value);
+      const age = Math.max(10, Number($('age').value) || 28);
+      const height = Math.max(80, Number($('height').value) || 175);
+      const weight = Math.max(30, Number($('weight').value) || 82);
+      const bodyFat = Number($('bodyFat').value);
       const activity = Number($('activity').value);
+      const deficit = Number($('deficit').value);
+      const formula = $('bmrFormula').value;
       const bmi = weight / ((height / 100) ** 2);
-      const bmr = gender === 'male'
+      const mifflin = gender === 'male'
         ? 10 * weight + 6.25 * height - 5 * age + 5
         : 10 * weight + 6.25 * height - 5 * age - 161;
+      const canUseKatch = bodyFat > 3 && bodyFat < 70;
+      const katch = canUseKatch ? 370 + 21.6 * (weight * (1 - bodyFat / 100)) : mifflin;
+      const useKatch = formula === 'katch' || (formula === 'auto' && canUseKatch);
+      const bmr = useKatch ? katch : mifflin;
       const tdee = bmr * activity;
-      const cut = Math.max(1300, tdee - 500);
+      const minCalories = gender === 'female' ? 1200 : 1500;
+      const cut = Math.max(minCalories, tdee - deficit);
       const protein = Math.round(weight * 1.8);
+      const fat = Math.round(weight * 0.8);
+      const carbs = Math.max(60, Math.round((cut - protein * 4 - fat * 9) / 4));
       state.calories = Math.round(cut);
       state.protein = protein;
+      state.carbs = carbs;
+      state.fat = fat;
+      state.bmr = Math.round(bmr);
+      state.tdee = Math.round(tdee);
       $('bmi').textContent = bmi.toFixed(1);
       $('bmr').textContent = Math.round(bmr);
       $('tdee').textContent = Math.round(tdee);
       $('cutCalories').textContent = Math.round(cut);
-      $('calorieTarget').textContent = Math.round(cut);
-      $('calorieLeft').textContent = Math.round(cut * .34);
-      $('proteinTarget').textContent = protein + 'g';
-      generatePlan();
+      $('bodyCalcNote').textContent = `BMR 使用 ${useKatch ? 'Katch-McArdle 体脂公式' : 'Mifflin-St Jeor 公式'}。TDEE = BMR × 活动系数 ${activity}。当前减脂热量 = TDEE - ${deficit} kcal，并设置了安全下限。蛋白质按 1.8g/kg 估算，脂肪按 0.8g/kg 估算，剩余热量分给碳水。`;
+      generatePlan(false);
+      saveState();
+      renderAll();
     }
 
-    function generatePlan() {
+    function generatePlan(shouldShow = true) {
       const names = state.ingredients.map(item => item.name);
       const has = key => names.some(name => name.includes(key));
       const breakfast = has('燕麦')
-        ? ['燕麦牛奶鸡蛋餐', '燕麦 50g、鸡蛋 2个、牛奶 250ml', 520, 32]
-        : ['高蛋白早餐', '鸡蛋 2个、全麦面包 2片、无糖酸奶 1杯', 480, 30];
+        ? ['燕麦牛奶鸡蛋餐', '燕麦 50g、鸡蛋 2个、牛奶 250ml', 520, 32, 62, 14]
+        : ['高蛋白早餐', '鸡蛋 2个、全麦面包 2片、无糖酸奶 1杯', 480, 30, 48, 16];
       const lunch = has('鸡胸')
-        ? ['鸡胸肉西兰花米饭', '鸡胸肉 180g、西兰花 250g、米饭 150g', 650, 55]
-        : ['牛肉蔬菜碗', '瘦牛肉 150g、蔬菜 300g、米饭 120g', 680, 48];
+        ? ['鸡胸肉西兰花米饭', '鸡胸肉 180g、西兰花 250g、米饭 150g', 650, 55, 70, 14]
+        : ['牛肉蔬菜碗', '瘦牛肉 150g、蔬菜 300g、米饭 120g', 680, 48, 64, 22];
       const dinner = has('鸡蛋')
-        ? ['番茄鸡蛋豆腐汤', '鸡蛋 2个、豆腐 200g、番茄 2个、玉米半根', 540, 42]
-        : ['虾仁蔬菜晚餐', '虾仁 180g、蔬菜 300g、红薯 150g', 520, 45];
-      state.meals = [
-        { type: '早餐', title: breakfast[0], detail: breakfast[1], cal: breakfast[2], protein: breakfast[3] },
-        { type: '午餐', title: lunch[0], detail: lunch[1], cal: lunch[2], protein: lunch[3] },
-        { type: '晚餐', title: dinner[0], detail: dinner[1], cal: dinner[2], protein: dinner[3] }
-      ];
-      state.workout = [
-        { name: '热身快走', detail: '8分钟，逐渐提高心率', tag: '热身' },
-        { name: '深蹲', detail: '4组 × 12次，组间休息75秒', tag: '下肢' },
-        { name: '俯卧撑', detail: '3组 × 10到15次，保持动作稳定', tag: '上肢' },
-        { name: '平板支撑', detail: '3组 × 40秒，核心收紧', tag: '核心' }
-      ];
-      $('coachMessage').textContent = `明天目标 ${state.calories} kcal，蛋白质 ${state.protein}g。优先用现有食材，训练保持45分钟，完成比完美更重要。`;
-      $('sideCoach').textContent = '计划已更新。明天先把早餐和训练完成，节奏就稳了。';
-      renderMeals();
-      renderWorkout();
-      renderShopping();
-      showTab('today');
+        ? ['番茄鸡蛋豆腐汤', '鸡蛋 2个、豆腐 200g、番茄 2个、玉米半根', 540, 42, 42, 20]
+        : ['虾仁蔬菜晚餐', '虾仁 180g、蔬菜 300g、红薯 150g', 520, 45, 52, 10];
+      const workoutType = workoutTypes[Math.abs(hashCode(state.selectedDate)) % workoutTypes.length];
+      state.plans[state.selectedDate] = {
+        meals: [
+          { type: '早餐', title: breakfast[0], detail: breakfast[1], calories: breakfast[2], protein: breakfast[3], carbs: breakfast[4], fat: breakfast[5] },
+          { type: '午餐', title: lunch[0], detail: lunch[1], calories: lunch[2], protein: lunch[3], carbs: lunch[4], fat: lunch[5] },
+          { type: '晚餐', title: dinner[0], detail: dinner[1], calories: dinner[2], protein: dinner[3], carbs: dinner[4], fat: dinner[5] }
+        ],
+        workout: workoutType
+      };
+      $('coachMessage').textContent = `${state.selectedDate} 目标 ${state.calories} kcal，蛋白质 ${state.protein}g。计划会按日期保存，实际吃了什么请在饮食页记录。`;
+      $('sideCoach').textContent = '计划已更新。今天只要真实记录，就比凭感觉减脂靠谱。';
+      saveState();
+      if (shouldShow) showTab('today');
+    }
+
+    function hashCode(text) {
+      return text.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) | 0, 0);
     }
 
     function renderMeals() {
-      $('todayMeals').innerHTML = state.meals.map((meal, i) => `
+      const plan = currentPlan();
+      $('todayMeals').innerHTML = plan.meals.map((meal, i) => `
         <div class="row">
           <div>
-            <strong>${meal.type}：${meal.title}</strong>
-            <small>${meal.detail}</small>
+            <strong>${esc(meal.type)}：${esc(meal.title)}</strong>
+            <small>${esc(meal.detail)}</small>
           </div>
-          <span class="pill ${['green','blue','gold'][i]}">${meal.cal} kcal / ${meal.protein}g</span>
+          <span class="pill ${['green','blue','gold'][i]}">${meal.calories} kcal / P ${meal.protein}g</span>
         </div>
       `).join('');
     }
 
     function renderWorkout() {
-      $('workoutList').innerHTML = state.workout.map((item, i) => `
+      const workout = currentPlan().workout;
+      $('workoutList').innerHTML = workout.plan.map((detail, i) => `
         <div class="row">
           <div>
-            <strong>${item.name}</strong>
-            <small>${item.detail}</small>
+            <strong>${i === 0 ? esc(workout.name) : esc(workout.type)}</strong>
+            <small>${esc(detail)}</small>
           </div>
-          <span class="pill ${['green','blue','gold','red'][i]}">${item.tag}</span>
+          <span class="pill ${['green','blue','gold','red'][i % 4]}">${esc(workout.type)}</span>
         </div>
       `).join('');
+    }
+
+    function renderFoodLogs() {
+      const record = currentRecord();
+      $('foodLogList').innerHTML = record.foods.length ? record.foods.map((food, index) => `
+        <div class="row">
+          <div>
+            <strong>${esc(food.type)}：${esc(food.name)}</strong>
+            <small>P ${food.protein}g / C ${food.carbs}g / F ${food.fat}g</small>
+          </div>
+          <button class="secondary" data-remove-food="${index}">${food.calories} kcal 删除</button>
+        </div>
+      `).join('') : '<p style="margin:0;color:#69716d;">这个日期还没有饮食记录。</p>';
+      document.querySelectorAll('[data-remove-food]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentRecord().foods.splice(Number(btn.dataset.removeFood), 1);
+          saveState();
+          renderAll();
+        });
+      });
+    }
+
+    function addFood() {
+      const name = $('foodName').value.trim();
+      if (!name) return;
+      currentRecord().foods.push({
+        type: $('mealType').value,
+        name,
+        calories: Number($('foodCalories').value || 0),
+        protein: Number($('foodProtein').value || 0),
+        carbs: Number($('foodCarbs').value || 0),
+        fat: Number($('foodFat').value || 0)
+      });
+      $('foodName').value = '';
+      saveState();
+      renderAll();
     }
 
     function renderIngredients() {
       $('ingredientList').innerHTML = state.ingredients.map((item, index) => `
         <div class="row">
           <div>
-            <strong>${item.name}</strong>
-            <small>${item.qty}${item.unit} 可用于生成饮食计划</small>
+            <strong>${esc(item.name)}</strong>
+            <small>${item.qty}${esc(item.unit)} 可用于生成饮食计划</small>
           </div>
           <button class="secondary" data-remove="${index}">删除</button>
         </div>
@@ -748,8 +982,8 @@
       document.querySelectorAll('[data-remove]').forEach(btn => {
         btn.addEventListener('click', () => {
           state.ingredients.splice(Number(btn.dataset.remove), 1);
-          renderIngredients();
-          renderShopping();
+          saveState();
+          renderAll();
         });
       });
     }
@@ -762,58 +996,179 @@
       if (!names.includes('番茄')) missing.push(['番茄', '用于晚餐汤菜']);
       if (!names.includes('豆腐')) missing.push(['豆腐', '提高晚餐蛋白质']);
       $('shoppingList').innerHTML = missing.length
-        ? missing.map(item => `<div class="row"><div><strong>${item[0]}</strong><small>${item[1]}</small></div><span class="pill gold">建议购买</span></div>`).join('')
+        ? missing.map(item => `<div class="row"><div><strong>${esc(item[0])}</strong><small>${esc(item[1])}</small></div><span class="pill gold">建议购买</span></div>`).join('')
         : '<p style="margin:0;color:#39423e;line-height:1.7;">库存足够生成明日计划。</p>';
     }
 
     function addIngredient() {
       const name = $('ingredientName').value.trim();
       if (!name) return;
-      state.ingredients.push({
-        name,
-        qty: Number($('ingredientQty').value || 1),
-        unit: $('ingredientUnit').value
-      });
+      state.ingredients.push({ name, qty: Number($('ingredientQty').value || 1), unit: $('ingredientUnit').value });
       $('ingredientName').value = '';
-      renderIngredients();
-      renderShopping();
+      saveState();
+      renderAll();
+    }
+
+    function renderWorkoutOptions() {
+      $('workoutType').innerHTML = workoutTypes.map(item => `<option value="${esc(item.type)}">${esc(item.type)}</option>`).join('');
+    }
+
+    function updateWorkoutEstimate() {
+      const type = workoutTypes.find(item => item.type === $('workoutType').value) || workoutTypes[0];
+      const minutes = Number($('workoutDoneMinutes').value || 0);
+      $('workoutName').value = type.name;
+      $('workoutCalories').value = Math.round(minutes * type.calPerMin);
+    }
+
+    function renderWorkoutTemplates() {
+      $('workoutTemplates').innerHTML = workoutTypes.map(type => `
+        <div class="row">
+          <div>
+            <strong>${esc(type.type)}：${esc(type.name)}</strong>
+            <small>${esc(type.plan.join(' / '))}</small>
+          </div>
+          <button class="secondary" data-use-workout="${esc(type.type)}">使用</button>
+        </div>
+      `).join('');
+      document.querySelectorAll('[data-use-workout]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('workoutType').value = btn.dataset.useWorkout;
+          updateWorkoutEstimate();
+        });
+      });
     }
 
     function submitCheckin() {
       const mood = $('mood').value;
       const fatigue = $('fatigue').value;
       const minutes = Number($('workoutDoneMinutes').value || 0);
+      const calories = Number($('workoutCalories').value || 0);
+      currentRecord().mood = mood;
+      currentRecord().fatigue = fatigue;
+      currentRecord().note = $('workoutNote').value;
+      currentRecord().workouts.push({
+        type: $('workoutType').value,
+        name: $('workoutName').value.trim() || $('workoutType').value,
+        minutes,
+        calories,
+        mood,
+        fatigue,
+        note: $('workoutNote').value
+      });
       const review = fatigue === '高'
-        ? `今天完成了${minutes}分钟训练，但疲劳偏高。明天建议改成快走或拉伸，把蛋白质吃够，早点休息。`
-        : `今天完成了${minutes}分钟训练，状态是${mood}。执行得很稳，明天继续保持当前热量目标，训练强度可以维持。`;
+        ? `今天记录了${minutes}分钟${$('workoutType').value}，疲劳偏高。明天建议做快走、瑜伽拉伸或休息，把饮食记录完整就很好。`
+        : `今天记录了${minutes}分钟${$('workoutType').value}，状态是${mood}。继续保持真实记录，明天按完成情况微调。`;
+      currentRecord().review = review;
       $('reviewText').textContent = review;
-      $('completion').textContent = '92%';
-      $('completionBar').style.width = '92%';
       $('coachMessage').textContent = review;
+      saveState();
+      renderAll();
       showTab('workout');
+    }
+
+    function renderWorkoutLogs() {
+      const workouts = currentRecord().workouts;
+      $('workoutLogList').innerHTML = workouts.length ? workouts.map((item, index) => `
+        <div class="row">
+          <div>
+            <strong>${esc(item.type)}：${esc(item.name)}</strong>
+            <small>${item.minutes}分钟 / ${item.calories} kcal / 心情：${esc(item.mood)} / 疲劳：${esc(item.fatigue)}</small>
+          </div>
+          <button class="secondary" data-remove-workout="${index}">删除</button>
+        </div>
+      `).join('') : '<p style="margin:0;color:#69716d;">这个日期还没有运动记录。</p>';
+      document.querySelectorAll('[data-remove-workout]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentRecord().workouts.splice(Number(btn.dataset.removeWorkout), 1);
+          saveState();
+          renderAll();
+        });
+      });
+    }
+
+    function renderDailySummary() {
+      const record = currentRecord();
+      const eaten = sum(record.foods, 'calories');
+      const protein = sum(record.foods, 'protein');
+      const burned = sum(record.workouts, 'calories');
+      const minutes = sum(record.workouts, 'minutes');
+      const left = state.calories - eaten + burned;
+      const foodScore = Math.min(35, eaten ? 35 : 0);
+      const proteinScore = Math.min(20, Math.round((protein / Math.max(1, state.protein)) * 20));
+      const workoutScore = Math.min(25, minutes ? 25 : 0);
+      const completion = Math.min(100, foodScore + proteinScore + workoutScore + 10);
+      $('calorieTarget').textContent = state.calories;
+      $('calorieLeft').textContent = left;
+      $('proteinTarget').textContent = `${state.protein}g`;
+      $('completion').textContent = `${completion}%`;
+      $('completionBar').style.width = `${completion}%`;
+      $('todayFoodSummary').textContent = `已记录 ${record.foods.length} 条饮食，共 ${eaten} kcal，蛋白质 ${protein}g。今日剩余约 ${left} kcal。`;
+      $('todayWorkoutSummary').textContent = `已记录 ${record.workouts.length} 次运动，共 ${minutes} 分钟，估算消耗 ${burned} kcal。`;
+      if (record.review) $('reviewText').textContent = record.review;
+    }
+
+    function renderHistory() {
+      const days = Array.from({ length: 7 }, (_, i) => addDays(state.selectedDate, i - 6));
+      $('historyGrid').innerHTML = days.map(day => {
+        const r = state.records[day] || { foods: [], workouts: [] };
+        return `<button class="day-chip ${day === state.selectedDate ? 'active' : ''}" data-history-day="${day}">
+          <strong>${day.slice(5)}</strong>
+          <small>${r.foods.length}餐 / ${r.workouts.length}练<br>${sum(r.foods, 'calories')} kcal</small>
+        </button>`;
+      }).join('');
+      document.querySelectorAll('[data-history-day]').forEach(btn => {
+        btn.addEventListener('click', () => setSelectedDate(btn.dataset.historyDay));
+      });
+      const r = currentRecord();
+      $('historyDetail').innerHTML = `
+        <div class="notice">${state.selectedDate}：饮食 ${r.foods.length} 条，运动 ${r.workouts.length} 条，心情 ${esc(r.mood || '未记录')}。</div>
+        ${r.foods.map(food => `<div class="row"><div><strong>${esc(food.type)}：${esc(food.name)}</strong><small>${food.calories} kcal / P ${food.protein}g</small></div><span class="pill green">饮食</span></div>`).join('')}
+        ${r.workouts.map(item => `<div class="row"><div><strong>${esc(item.type)}：${esc(item.name)}</strong><small>${item.minutes}分钟 / ${item.calories} kcal</small></div><span class="pill blue">运动</span></div>`).join('')}
+      `;
     }
 
     function answerQuestion(question) {
       const q = question.trim();
       if (!q) return;
       const chat = $('chatList');
-      chat.insertAdjacentHTML('beforeend', `<div class="chat-bubble user">${q}</div>`);
-      let answer = '先看今天剩余热量和蛋白质目标。优先选择高蛋白、低油、足量蔬菜的方案，把下一步做小一点就能继续推进。';
-      if (q.includes('火锅')) answer = '火锅可以吃。优先清汤锅，主选牛肉、虾、豆腐和蔬菜，少喝汤，少选油炸丸子和肥牛。主食控制在半份到一份，吃到七分饱就很好。';
-      if (q.includes('不想练') || q.includes('很累')) answer = '今天可以把目标降到20分钟快走或拉伸。不要把一次状态差理解成失败，完成低门槛版本也算守住连续性。';
-      if (q.includes('晚餐')) answer = '晚餐建议高蛋白加蔬菜，减少油脂和精制主食。可以选鸡胸肉或鸡蛋豆腐，配西兰花、番茄，主食控制在半份。';
-      if (q.includes('十一点') || q.includes('饿')) answer = '如果真的饿，选低负担高蛋白：无糖酸奶、鸡蛋、牛奶或豆腐。避免高油高糖零食，吃完就结束，不继续加餐。';
-      if (q.includes('鸡蛋') && q.includes('燕麦')) answer = '可以安排：早餐燕麦50g加牛奶，配2个鸡蛋；午餐鸡蛋蔬菜炒饭少油；晚餐番茄鸡蛋汤加一份蔬菜。蛋白质不够的话，购物清单补鸡胸肉或豆腐。';
-      chat.insertAdjacentHTML('beforeend', `<div class="chat-bubble ai">${answer}</div>`);
+      chat.insertAdjacentHTML('beforeend', `<div class="chat-bubble user">${esc(q)}</div>`);
+      let answer = '先把今天实际吃了什么记下来，再看剩余热量和蛋白质。真实记录比估算完美更有用。';
+      if (q.includes('火锅')) answer = '火锅可以吃。优先清汤锅，主选牛肉、虾、豆腐和蔬菜，少喝汤，少选油炸丸子和肥牛。吃完在饮食页按大概热量记录，不需要内疚。';
+      if (q.includes('不想练') || q.includes('很累')) answer = '今天可以把目标降到20分钟快走或拉伸。运动页现在有恢复拉伸、快走、瑜伽拉伸这些低门槛项目。';
+      if (q.includes('晚餐')) answer = '晚餐建议高蛋白加蔬菜，减少油脂和精制主食。吃完记到饮食页，系统会自动更新当天剩余热量。';
+      if (q.includes('十一点') || q.includes('饿')) answer = '如果真的饿，选低负担高蛋白：无糖酸奶、鸡蛋、牛奶或豆腐。吃完记录为加餐即可。';
+      chat.insertAdjacentHTML('beforeend', `<div class="chat-bubble ai">${esc(answer)}</div>`);
       $('chatInput').value = '';
       showTab('ai');
     }
 
+    function renderAll() {
+      formatDate();
+      currentRecord();
+      currentPlan();
+      renderMeals();
+      renderWorkout();
+      renderFoodLogs();
+      renderIngredients();
+      renderShopping();
+      renderWorkoutTemplates();
+      renderWorkoutLogs();
+      renderDailySummary();
+      renderHistory();
+    }
+
     function bindEvents() {
       $('calculateBody').addEventListener('click', calculateBody);
-      $('generatePlan').addEventListener('click', generatePlan);
+      $('generatePlan').addEventListener('click', () => generatePlan(true));
       $('addIngredient').addEventListener('click', addIngredient);
+      $('addFood').addEventListener('click', addFood);
       $('submitCheckin').addEventListener('click', submitCheckin);
+      $('selectedDate').addEventListener('change', event => setSelectedDate(event.target.value));
+      $('prevDate').addEventListener('click', () => setSelectedDate(addDays(state.selectedDate, -1)));
+      $('nextDate').addEventListener('click', () => setSelectedDate(addDays(state.selectedDate, 1)));
+      $('jumpToday').addEventListener('click', () => setSelectedDate(dateKey(new Date())));
+      $('workoutType').addEventListener('change', updateWorkoutEstimate);
+      $('workoutDoneMinutes').addEventListener('input', updateWorkoutEstimate);
       $('sendChat').addEventListener('click', () => answerQuestion($('chatInput').value));
       $('chatInput').addEventListener('keydown', event => {
         if (event.key === 'Enter') answerQuestion($('chatInput').value);
@@ -824,10 +1179,10 @@
     }
 
     renderNav();
-    formatDate();
+    renderWorkoutOptions();
     bindEvents();
     calculateBody();
-    renderIngredients();
+    updateWorkoutEstimate();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(() => {});

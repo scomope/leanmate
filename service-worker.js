@@ -1,4 +1,4 @@
-const CACHE_NAME = 'leanmate-mvp-v1';
+const CACHE_NAME = 'leanmate-mvp-v2';
 const APP_FILES = [
   './',
   './index.html',
